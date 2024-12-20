@@ -27,6 +27,12 @@ class Student:
         event_queue.append(event)
         print('Event', event.name, 'emitted!')
 
+    def handle_appointment_confirmation(self, event):
+        if event.payload['is_confirmed']:
+            print("Awesome. I have an appointment at Polish Embassy")
+        else:    
+            print("Oh no! I will have to try again")
+
 class Embassy:
     def __init__(self, name, address, phone_number, email):
         self.name = name
@@ -41,14 +47,19 @@ class Embassy:
         print('Event', confirmation_event.name, 'emitted!')
         
 # Example Usage
-peter1 = Student("Piotr1", "Brudny", '1.02.1984', 'Ankara', '5435345345', 'ED4234323')
-peter2 = Student("Piotr2", "Brudny", '2.02.1994', 'Ankara', '5435345345', 'ED41423')
-peter3 = Student("Piotr3", "Brudny", '4.02.1984', 'Ankara', '54353fds45345', 'ED42723')
-
-peter1.ask_for_embassy_appointment('10.12.2024')
-peter2.ask_for_embassy_appointment('11.12.2024')
-peter3.ask_for_embassy_appointment('10.12.2024')
-
+student1 = Student("Piotr1", "Brudny", '1.02.1984', 'Ankara', '5435345345', 'ED4234323')
 polish_embassy = Embassy('Polish Embassy', 'Ankara, Harika 10', '343242344', 'polishembassy@gov.tr')
+
+
+student1.ask_for_embassy_appointment('10.12.2024')
+
+while event_queue: # it runs as long as there is an event in the list
+    event = event_queue.pop(0) # takes the event from the top
+
+    # matches events with the handler
+    if isinstance(event, EmbassyAppointmentRequestEvent):
+        polish_embassy.handle_appointment_request(event) 
+    elif isinstance(event, AppointmentConfirmationEvent):
+        student1.handle_appointment_confirmation(event)
 
     
